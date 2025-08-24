@@ -1,7 +1,6 @@
-module github.com/ali-naseri-php/Askly
+module github.com/ali-naseri-php/Askly/gateway
 
-go 1.24.5
-
+go 1.24.6
 
 require (
 	github.com/joho/godotenv v1.5.1
@@ -14,6 +13,7 @@ require (
 )
 
 require (
+	github.com/ali-naseri-php/Askly/proto v0.0.0
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -23,9 +23,7 @@ require (
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
-	golang.org/x/time v0.11.0 // indirect
 	google.golang.org/grpc v1.75.0
-	github.com/ali-naseri-php/Askly/proto/auth v0.0.0
 )
 
-replace github.com/ali-naseri-php/Askly/proto/auth => ../proto
+replace github.com/ali-naseri-php/Askly/proto => ../proto

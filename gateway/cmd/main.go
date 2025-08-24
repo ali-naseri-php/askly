@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	authpb "github.com/ali-naseri-php/ASKLY/proto/auth"
+	authpb "github.com/ali-naseri-php/Askly/proto/auth"
 	"github.com/joho/godotenv" 
 	"github.com/labstack/echo/v4"
 	"google.golang.org/grpc"
