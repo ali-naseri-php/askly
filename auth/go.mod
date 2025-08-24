@@ -1,4 +1,4 @@
-module auth
+module github.com/ali-naseri-php/Askly/auth
 
 go 1.24.6
 
@@ -10,4 +10,8 @@ require (
 	google.golang.org/grpc v1.75.0 // indirect
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
+	github.com/ali-naseri-php/Askly/proto/auth v0.0.0
 )
+
+replace github.com/ali-naseri-php/Askly/proto/auth => ../proto
+

@@ -1,56 +1,64 @@
 package main
 
 import (
-    "log"
-    "net/http"
-    "net/http/httputil"
-    "net/url"
-    "os"
+	"context"
+	"log"
+	"net/http"
+	"os"
+	"time"
 
-    "github.com/joho/godotenv"
-    "github.com/labstack/echo/v4"
-    "github.com/labstack/echo/v4/middleware"
+	authpb "github.com/ali-naseri-php/ASKLY/proto/auth"
+	"github.com/joho/godotenv" 
+	"github.com/labstack/echo/v4"
+	"google.golang.org/grpc"
 )
 
-// reverse proxy handler
-func reverseProxy(target string) echo.HandlerFunc {
-    targetURL, _ := url.Parse(target)
-    proxy := httputil.NewSingleHostReverseProxy(targetURL)
-
-    return func(c echo.Context) error {
-        c.Request().Header.Set("X-Forwarded-Host", c.Request().Host)
-        c.Request().Header.Set("X-Origin-Host", targetURL.Host)
-        proxy.ServeHTTP(c.Response(), c.Request())
-        return nil
-    }
-}
-
 func main() {
-    // load .env file
-    if err := godotenv.Load(); err != nil {
-        log.Println("⚠️  .env file not found, falling back to system env")
-    }
+	// load .env file
+	if err := godotenv.Load(); err != nil {
+		log.Println("⚠️  .env file not found, falling back to system env")
+	}
 
-    // read env vars
-    authService := os.Getenv("AUTH_SERVICE_URL")
-    userService := os.Getenv("USER_SERVICE_URL")
-    gatewayPort := os.Getenv("GATEWAY_PORT")
-    if gatewayPort == "" {
-        gatewayPort = "8080" // default
-    }
+	authServiceAddr := os.Getenv("AUTH_SERVICE_URL")
+	if authServiceAddr == "" {
+		authServiceAddr = "localhost:50051"
+	}
 
-    e := echo.New()
-    e.Use(middleware.Logger())
-    e.Use(middleware.Recover())
+	gatewayPort := os.Getenv("GATEWAY_PORT")
+	if gatewayPort == "" {
+		gatewayPort = "8080"
+	}
 
-    // routes
-    e.Any("/auth/*", reverseProxy(authService))
-    e.Any("/user/*", reverseProxy(userService))
+	// connect to gRPC Auth service
+	conn, err := grpc.Dial(authServiceAddr, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("failed to connect to auth service: %v", err)
+	}
+	defer conn.Close()
 
-    e.GET("/ping", func(c echo.Context) error {
-        return c.String(http.StatusOK, "Gateway is up!")
-    })
+	authClient := authpb.NewAuthServiceClient(conn)
 
-    log.Printf("🚀 Gateway running on :%s", gatewayPort)
-    e.Logger.Fatal(e.Start(":" + gatewayPort))
+	e := echo.New()
+
+	e.POST("/login", func(c echo.Context) error {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		resp, err := authClient.Login(ctx, &authpb.LoginRequest{
+			Email:    "test@test.com",
+			Password: "123",
+		})
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		}
+
+		return c.JSON(http.StatusOK, map[string]string{"token": resp.Token})
+	})
+
+	e.GET("/ping", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Gateway is up!")
+	})
+
+	log.Printf("🚀 Gateway running on :%s", gatewayPort)
+	e.Logger.Fatal(e.Start(":" + gatewayPort))
 }

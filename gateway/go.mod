@@ -1,10 +1,16 @@
-module gateway
+module github.com/ali-naseri-php/Askly
 
 go 1.24.5
+
 
 require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.13.4
+)
+
+require (
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250707201910-8d1bb00bc6a7 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 )
 
 require (
@@ -18,4 +24,8 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
+	google.golang.org/grpc v1.75.0
+	github.com/ali-naseri-php/Askly/proto/auth v0.0.0
 )
+
+replace github.com/ali-naseri-php/Askly/proto/auth => ../proto
