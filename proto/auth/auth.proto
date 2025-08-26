@@ -5,15 +5,25 @@ package auth;
 
 option go_package = "github.com/ali-naseri-php/Askly/proto/auth;authpb";
 
-service AuthService {
-  rpc Login(LoginRequest) returns (LoginResponse);
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
 }
 
 message LoginRequest {
   string email = 1;
   string password = 2;
 }
+message RegisterResponse {
+  string user_id = 1;          // UUID ایجاد شده
+  string message = 2;          // optional پیام موفقیت/خطا
+}
 
 message LoginResponse {
-  string token = 1;
+  string token = 1;            // JWT
+  string message = 2;          // optional پیام موفقیت/خطا
+}
+service AuthService {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
 }

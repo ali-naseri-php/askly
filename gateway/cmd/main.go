@@ -1,64 +1,40 @@
 package main
 
 import (
-	"context"
 	"log"
-	"net/http"
-	"os"
-	"time"
-
-	authpb "github.com/ali-naseri-php/Askly/proto/auth"
-	"github.com/joho/godotenv" 
+	"github.com/ali-naseri-php/Askly/gateway/config"
+	"github.com/ali-naseri-php/Askly/gateway/routes"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
-	// load .env file
+	// load .env
 	if err := godotenv.Load(); err != nil {
 		log.Println("⚠️  .env file not found, falling back to system env")
 	}
 
-	authServiceAddr := os.Getenv("AUTH_SERVICE_URL")
-	if authServiceAddr == "" {
-		authServiceAddr = "localhost:50051"
-	}
+	// config
+	cfg := config.Load()
 
-	gatewayPort := os.Getenv("GATEWAY_PORT")
-	if gatewayPort == "" {
-		gatewayPort = "8080"
-	}
-
-	// connect to gRPC Auth service
-	conn, err := grpc.Dial(authServiceAddr, grpc.WithInsecure())
+	// gRPC connection to Auth service
+	conn, err := grpc.Dial(
+		cfg.AuthServiceURL,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		log.Fatalf("failed to connect to auth service: %v", err)
 	}
 	defer conn.Close()
 
-	authClient := authpb.NewAuthServiceClient(conn)
-
+	// echo
 	e := echo.New()
 
-	e.POST("/login", func(c echo.Context) error {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
+	// register routes
+	routes.RegisterRoutes(e, conn)
 
-		resp, err := authClient.Login(ctx, &authpb.LoginRequest{
-			Email:    "test@test.com",
-			Password: "123",
-		})
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
-		}
-
-		return c.JSON(http.StatusOK, map[string]string{"token": resp.Token})
-	})
-
-	e.GET("/ping", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Gateway is up!")
-	})
-
-	log.Printf("🚀 Gateway running on :%s", gatewayPort)
-	e.Logger.Fatal(e.Start(":" + gatewayPort))
+	log.Printf("🚀 Gateway running on :%s", cfg.GatewayPort)
+	e.Logger.Fatal(e.Start(":" + cfg.GatewayPort))
 }
