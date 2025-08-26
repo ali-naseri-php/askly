@@ -17,15 +17,15 @@ func NewAuthHandler(svc *service.AuthService) *AuthHandler {
 }
 
 func (h *AuthHandler) Register(ctx context.Context, req *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
-	user, err := h.svc.Register(ctx, req.Email, req.Password)
+	token, err := h.svc.Register(ctx, req.Email, req.Password)
 	if err != nil {
 		return &authpb.RegisterResponse{
-			UserId:  "",
+			Token:   token,
 			Message: err.Error(),
 		}, nil
 	}
 	return &authpb.RegisterResponse{
-		UserId:  user.ID,
+		Token:   token,
 		Message: "registration successful",
 	}, nil
 }

@@ -1,12 +1,19 @@
 package utils
 
 import (
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtSecret = []byte("super-secret-key") // بهتره از ENV بخونی
+func getJWTSecret() []byte {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		secret = "ali-naseri" // مقدار پیش‌فرض
+	}
+	return []byte(secret)
+}
 
 func GenerateJWT(userID string) (string, error) {
 	claims := jwt.MapClaims{
@@ -15,5 +22,5 @@ func GenerateJWT(userID string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString(getJWTSecret())
 }

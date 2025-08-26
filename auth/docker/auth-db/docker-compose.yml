@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  auth-db:
+    image: postgres:17.4
+    container_name: auth_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: auth_askily
+      POSTGRES_USER: name_auth_askily
+      POSTGRES_PASSWORD: password_auth_askily
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  auth-service:
+    build:
+      context: ../..                     # مسیر ریشه پروژه
+      dockerfile: docker/auth-service/Dockerfile
+    container_name: auth_service
+    restart: unless-stopped
+    depends_on:
+      - auth-db
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgres://name_auth_askily:password_auth_askily@auth-db:5432/auth_askily
+
+volumes:
+  postgres_data:

@@ -19,10 +19,10 @@ func NewAuthService(repo repository.UserRepository) *AuthService {
 	return &AuthService{userRepo: repo}
 }
 
-func (s *AuthService) Register(ctx context.Context, email, password string) (*domain.Auth, error) {
+func (s *AuthService) Register(ctx context.Context, email, password string) (string, error) {
 	hashed, err := utils.HashPassword(password)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	user := &domain.Auth{
@@ -34,10 +34,10 @@ func (s *AuthService) Register(ctx context.Context, email, password string) (*do
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return user, nil
+	return utils.GenerateJWT(user.ID)
 }
 
 func (s *AuthService) Login(ctx context.Context, email, password string) (string, error) {

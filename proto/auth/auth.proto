@@ -15,7 +15,7 @@ message LoginRequest {
   string password = 2;
 }
 message RegisterResponse {
-  string user_id = 1;          // UUID ایجاد شده
+  string token = 1;         // UUID ایجاد شده
   string message = 2;          // optional پیام موفقیت/خطا
 }
 

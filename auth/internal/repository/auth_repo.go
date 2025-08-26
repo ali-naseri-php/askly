@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"auth/internal/domain"
+	"auth/internal/db"
 
 	"gorm.io/gorm"
 )
@@ -21,14 +22,17 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 }
 
 func (r *userRepo) Create(ctx context.Context, user *domain.Auth) error {
-	return r.db.WithContext(ctx).Create(user).Error
+	// تبدیل Domain → DB
+	userDB := db.FromDomain(user)
+	return r.db.WithContext(ctx).Create(userDB).Error
 }
 
 func (r *userRepo) FindByEmail(ctx context.Context, email string) (*domain.Auth, error) {
-	var user domain.Auth
-	err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
+	var userDB db.AuthDB
+	err := r.db.WithContext(ctx).Where("email = ?", email).First(&userDB).Error
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	// تبدیل DB → Domain
+	return userDB.ToDomain(), nil
 }
