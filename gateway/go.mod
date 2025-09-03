@@ -10,7 +10,10 @@ require (
 require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250707201910-8d1bb00bc6a7 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
+	github.com/ali-naseri-php/Askly/proto v0.0.0
+
 )
+
 
 require (
 	github.com/ali-naseri-php/Askly/proto v0.0.0
@@ -27,3 +30,4 @@ require (
 )
 
 replace github.com/ali-naseri-php/Askly/proto => ../proto
+

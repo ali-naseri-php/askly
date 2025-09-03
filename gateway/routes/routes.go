@@ -11,6 +11,6 @@ func RegisterRoutes(e *echo.Echo, conn *grpc.ClientConn) {
 		return c.String(200, "Gateway is up!")
 	})
 
-	// auth routes
 	RegisterAuthRoutes(e, conn)
+	RegisterQuestionAnswerRoutes(e,conn)
 }

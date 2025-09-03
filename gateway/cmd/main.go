@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+
 	"github.com/ali-naseri-php/Askly/gateway/config"
 	"github.com/ali-naseri-php/Askly/gateway/routes"
 	"github.com/joho/godotenv"
@@ -11,21 +12,22 @@ import (
 )
 
 func main() {
-	// load .env
+	// بارگذاری .env
 	if err := godotenv.Load(); err != nil {
 		log.Println("⚠️  .env file not found, falling back to system env")
+		log.Println(err)
 	}
 
-	// config
+	// load config
 	cfg := config.Load()
 
-	// gRPC connection to Auth service
+	// اتصال gRPC به Auth و QuestionAnswer
 	conn, err := grpc.Dial(
 		cfg.AuthServiceURL,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		log.Fatalf("failed to connect to auth service: %v", err)
+		log.Fatalf("failed to connect to Auth service: %v", err)
 	}
 	defer conn.Close()
 
