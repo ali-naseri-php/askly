@@ -1,6 +1,8 @@
 syntax = "proto3";
 
-package  question-answer ;
+package  questionAnswer ;
+
+option go_package = "github.com/ali-naseri-php/Askly/proto/questionAnswer;questionAnswerpb";
 
 message Question {
   string id = 1;
