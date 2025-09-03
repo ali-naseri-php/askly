@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package  question-answer ;
+
+message Question {
+  string id = 1;
+  string title = 2;
+  string body = 3;
+  string token = 4;
+  int64 created_at = 5;
+}
+
+message Answer {
+  string id = 1;
+  string question_id = 2;
+  string body = 3;
+  string token = 4;
+  int64 created_at = 5;
+}
+
+// --- Requests & Responses ---
+message CreateQuestionRequest {
+  string title = 1;
+  string body = 2;
+  string token = 3;
+}
+message CreateQuestionResponse {
+  Question question = 1;
+}
+
+message GetQuestionRequest {
+  string id = 1;
+}
+message GetQuestionResponse {
+  Question question = 1;
+}
+
+message ListQuestionsRequest {}
+message ListQuestionsResponse {
+  repeated Question questions = 1;
+}
+
+message CreateAnswerRequest {
+  string question_id = 1;
+  string body = 2;
+  string token = 3;
+}
+message CreateAnswerResponse {
+  Answer answer = 1;
+}
+
+// --- Services ---
+service QuestionService {
+  rpc CreateQuestion(CreateQuestionRequest) returns (CreateQuestionResponse);
+  rpc GetQuestion(GetQuestionRequest) returns (GetQuestionResponse);
+  rpc ListQuestions(ListQuestionsRequest) returns (ListQuestionsResponse);
+}
+
+service AnswerService {
+  rpc CreateAnswer(CreateAnswerRequest) returns (CreateAnswerResponse);
+}
