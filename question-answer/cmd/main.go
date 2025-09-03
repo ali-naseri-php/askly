@@ -11,7 +11,6 @@ import (
 
 	"question-answer/internal/question"
 	"question-answer/internal/answer"
-	"question-answer/internal/category"
 
 	questionAnswerpb "github.com/ali-naseri-php/Askly/proto/question-answer"
 )
@@ -28,7 +27,6 @@ func main() {
 		if err := gormDB.AutoMigrate(
 			&question.QuestionDB{},
 			&answer.AnswerDB{},
-			&category.CategoryDB{},
 		); err != nil {
 			log.Fatalf("AutoMigrate error: %v", err)
 		}
@@ -44,10 +42,7 @@ func main() {
 	answerSvc := answer.NewAnswerService(answerRepo)
 	answerHandler := answer.NewAnswerHandler(answerSvc)
 
-	categoryRepo := category.NewCategoryRepository(gormDB)
-	categorySvc := category.NewCategoryService(categoryRepo)
-	categoryHandler := category.NewCategoryHandler(categorySvc)
-
+	
 	// --- gRPC server ---
 	lis, err := net.Listen("tcp", ":"+cfg.ServicePort)
 	if err != nil {
